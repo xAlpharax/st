@@ -1,30 +1,14 @@
-/* See LICENSE file for copyright and license details. */
+static char *font = "Inconsolata:pixelsize=17:antialias=true:autohint=true";
+static char *font2[] = { "Inconsolata for Powerline:pixelsize=17:antialias=true:autohint=true" };
 
-/*
- * appearance
- *
- * font: see http://freedesktop.org/software/fontconfig/fontconfig-user.html
- */
-static char *font = "Liberation Mono:pixelsize=12:antialias=true:autohint=true";
-/* Spare fonts */
-static char *font2[] = {
-/*	"Inconsolata for Powerline:pixelsize=12:antialias=true:autohint=true", */
-/*	"Hack Nerd Font Mono:pixelsize=11:antialias=true:autohint=true", */
-};
+static int borderpx = 0;
 
-static int borderpx = 2;
+/* transparency*/
+float alpha = 0.75;
 
-/*
- * What program is execed by st depends of these precedence rules:
- * 1: program passed with -e
- * 2: scroll and/or utmp
- * 3: SHELL environment variable
- * 4: value of shell in /etc/passwd
- * 5: value of shell in config.h
- */
-static char *shell = "/bin/sh";
+static char *shell = "/bin/zsh";
+
 char *utmp = NULL;
-/* scroll program: to enable use a string like "scroll" */
 char *scroll = NULL;
 char *stty_args = "stty raw pass8 nl -echo -iexten -cstopb 38400";
 
@@ -35,12 +19,8 @@ char *vtiden = "\033[?6c";
 static float cwscale = 1.0;
 static float chscale = 1.0;
 
-/*
- * word delimiter string
- *
- * More advanced example: L" `'\"()[]{}"
- */
-wchar_t *worddelimiters = L" ";
+/* word delimiter string */
+wchar_t *worddelimiters = L" /";
 
 /* selection timeouts (in milliseconds) */
 static unsigned int doubleclicktimeout = 300;
@@ -48,10 +28,7 @@ static unsigned int tripleclicktimeout = 600;
 
 /* alt screens */
 int allowaltscreen = 1;
-
-/* allow certain non-interactive (insecure) window operations such as:
-   setting the clipboard text */
-int allowwindowops = 0;
+int allowwindowops = 1;
 
 /*
  * draw latency range in ms - from new content/keypress/etc until drawing.
@@ -62,33 +39,12 @@ int allowwindowops = 0;
 static double minlatency = 8;
 static double maxlatency = 33;
 
-/*
- * blinking timeout (set to 0 to disable blinking) for the terminal blinking
- * attribute.
- */
+// blinking timeout (set to 0 to disable blinking) for the terminal blinking
 static unsigned int blinktimeout = 800;
 
-/*
- * thickness of underline and bar cursors
- */
+// thickness of underline and bar cursors
 static unsigned int cursorthickness = 2;
 
-/*
- * 1: render most of the lines/blocks characters without using the font for
- *    perfect alignment between cells (U2500 - U259F except dashes/diagonals).
- *    Bold affects lines thickness if boxdraw_bold is not 0. Italic is ignored.
- * 0: disable (render all U25XX glyphs normally from the font).
- */
-const int boxdraw = 0;
-const int boxdraw_bold = 0;
-
-/* braille (U28XX):  1: render as adjacent "pixels",  0: use font */
-const int boxdraw_braille = 0;
-
-/*
- * bell volume. It must be a value between -100 and 100. Use 0 for disabling
- * it
- */
 static int bellvolume = 0;
 
 /* default TERM value */
@@ -109,79 +65,64 @@ char *termname = "st-256color";
  *
  *	stty tabs
  */
-unsigned int tabspaces = 8;
+unsigned int tabspaces = 4;
 
-/* bg opacity */
-float alpha = 0.8;
 
-/* Terminal colors (16 first used in escape sequence) */
+
 static const char *colorname[] = {
-	/* 8 normal colors */
-	"black",
-	"red3",
-	"green3",
-	"yellow3",
-	"blue2",
-	"magenta3",
-	"cyan3",
-	"gray90",
 
-	/* 8 bright colors */
-	"gray50",
-	"red",
-	"green",
-	"yellow",
-	"#5c5cff",
-	"magenta",
-	"cyan",
-	"white",
+/* 8 normal colors ULTIMATE */
+  [0]  = "#828ff9", /* black   */
+  [1]  = "#7f64ba", /* red     */
+  [2]  = "#828ff9", /* green   */
+  [3]  = "#ac96dc", /* yellow  */
+  [4]  = "#e94c80", /* blue    */
+  [5]  = "#ace6f0", /* magenta */
+  [6]  = "#7f64ba", /*"#5f3e98" dark bkup, cyan    */
+  [7]  = "#eebea4", /* white   */
 
-	[255] = 0,
+  /* 8 bright colors */
+  [8]  = "#828ff9", /* black   */
+  [9]  = "#7f64ba", /* red     */
+  [10] = "#828ff9", /* green   */
+  [11] = "#ac96dc", /* yellow  */
+  [12] = "#e94c80", /* blue    */
+  [13] = "#ace6f0", /* magenta */
+  [14] = "#7f64ba", /* cyan    */
+  [15] = "#ace6f0", /* white   */
 
-	/* more colors can be added after 255 to use with DefaultXX */
-	"#cccccc",
-	"#555555",
-	"gray90", /* default foreground colour */
-	"black", /* default background colour */
+  /* special colors */
+  [256] = "#0a001f", /* background it was 0f0a1c new 08001d*/
+  [257] = "#d9d5e6", /* foreground */
 };
+
 
 
 /*
  * Default colors (colorname index)
- * foreground, background, cursor, reverse cursor
+ * foreground, background, cursor
  */
-unsigned int defaultfg = 258;
-unsigned int defaultbg = 259;
-unsigned int defaultcs = 256;
-static unsigned int defaultrcs = 257;
+unsigned int defaultfg = 257;
+unsigned int defaultbg = 256;
+unsigned int defaultcs = 257;
+static unsigned int defaultrcs = 256;
 
-/*
- * Default shape of cursor
- * 2: Block ("█")
- * 4: Underline ("_")
- * 6: Bar ("|")
- * 7: Snowman ("☃")
- */
-static unsigned int cursorshape = 2;
+static unsigned int defaultitalic = 7;
+static unsigned int defaultunderline = 7;
 
-/*
- * Default columns and rows numbers
- */
-
+// Default columns and rows numbers
 static unsigned int cols = 80;
 static unsigned int rows = 24;
 
-/*
- * Default colour and shape of the mouse cursor
- */
-static unsigned int mouseshape = XC_xterm;
-static unsigned int mousefg = 7;
-static unsigned int mousebg = 0;
+static unsigned int cursorshape = 6;
 
-/*
- * Color used to display font attributes when fontconfig selected a font which
- * doesn't match the ones requested.
- */
+// Default colour and shape of the mouse cursor
+static unsigned int mouseshape = XC_xterm;
+static unsigned int mousefg = 257;
+static unsigned int mousebg = 256;
+
+// Color used to display font attributes when fontconfig selected a font which
+// doesn't match the ones requested.
 static unsigned int defaultattr = 11;
 
 /*
@@ -189,6 +130,7 @@ static unsigned int defaultattr = 11;
  * Note that if you want to use ShiftMask with selmasks, set this to an other
  * modifier, set to 0 to not use it.
  */
+
 static uint forcemousemod = ShiftMask;
 
 /*
@@ -197,8 +139,8 @@ static uint forcemousemod = ShiftMask;
  */
 static MouseShortcut mshortcuts[] = {
 	/* mask                 button   function        argument       release */
-	{ ShiftMask,            Button4, kscrollup,      {.i = 1} },
-	{ ShiftMask,            Button5, kscrolldown,    {.i = 1} },
+	{ XK_ANY_MOD,           Button4, kscrollup,      {.i = 2} },
+	{ XK_ANY_MOD,           Button5, kscrolldown,    {.i = 2} },
 	{ XK_ANY_MOD,           Button2, selpaste,       {.i = 0},      1 },
 	{ ShiftMask,            Button4, ttysend,        {.s = "\033[5;2~"} },
 	{ XK_ANY_MOD,           Button4, ttysend,        {.s = "\031"} },
@@ -224,10 +166,8 @@ static Shortcut shortcuts[] = {
 	{ TERMMOD,              XK_Y,           selpaste,       {.i =  0} },
 	{ ShiftMask,            XK_Insert,      selpaste,       {.i =  0} },
 	{ TERMMOD,              XK_Num_Lock,    numlock,        {.i =  0} },
-    { MODKEY,               XK_l,           copyurl,        {.i =  0} },
-    { MODKEY|ShiftMask,     XK_L,           copyurl,        {.i =  1} },
-	{ ShiftMask,            XK_Page_Up,     kscrollup,      {.i = -1} },
-	{ ShiftMask,            XK_Page_Down,   kscrolldown,    {.i = -1} },
+	{ XK_NO_MOD,            XK_Page_Up,     kscrollup,      {.i = -1} },
+	{ XK_NO_MOD,            XK_Page_Down,   kscrolldown,    {.i = -1} },
 };
 
 /*
